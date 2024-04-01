@@ -75,12 +75,13 @@ fn grouping(mut border_sides: Vec<((isize, isize), (isize, isize))>) -> Vec<Vec<
 }
 
 fn main() {
+    #[rustfmt::skip]
     let grid: Vec<Vec<bool>> = [
-        "00XX00", // don't
-        "0XXX00", // format
-        "000000", // me
-        "XX000X", // please
-        "00000X", // >:(
+        "00XX00",
+        "0XXX00",
+        "000000",
+        "XX000X",
+        "00000X",
     ]
     .into_iter()
     .map(|row| row.chars().map(|x| x == 'X').collect::<Vec<bool>>())
