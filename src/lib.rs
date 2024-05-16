@@ -1,5 +1,5 @@
-fn find_border_sides(grid: Vec<Vec<bool>>) -> Vec<((isize, isize), (isize, isize))> {
-    let mut draw_lines = vec![];
+fn find_edges(grid: Vec<Vec<bool>>) -> Vec<((isize, isize), (isize, isize))> {
+    let mut edges = vec![];
 
     let max_y = (grid.len() - 1) as isize;
     let max_x = (grid[0].len() - 1) as isize;
@@ -36,14 +36,16 @@ fn find_border_sides(grid: Vec<Vec<bool>>) -> Vec<((isize, isize), (isize, isize
                     _ => unreachable!(),
                 });
 
-            draw_lines.extend(new_lines)
+            edges.extend(new_lines)
         }
     }
 
-    draw_lines
+    edges
 }
 
-fn grouping(mut border_sides: Vec<((isize, isize), (isize, isize))>) -> Vec<Vec<(isize, isize)>> {
+fn group_edges(
+    mut border_sides: Vec<((isize, isize), (isize, isize))>,
+) -> Vec<Vec<(isize, isize)>> {
     let mut groups: Vec<Vec<(isize, isize)>> = vec![];
     let mut group: Vec<(isize, isize)> = vec![];
     loop {
@@ -74,33 +76,20 @@ fn grouping(mut border_sides: Vec<((isize, isize), (isize, isize))>) -> Vec<Vec<
     groups
 }
 
-fn main() {
-    #[rustfmt::skip]
-    let grid: Vec<Vec<bool>> = [
-        "00XX00",
-        "0XXX00",
-        "000000",
-        "XX000X",
-        "00000X",
-    ]
-    .into_iter()
-    .map(|row| row.chars().map(|x| x == 'X').collect::<Vec<bool>>())
-    .collect();
+pub fn grid_to_css_path(input: Vec<Vec<bool>>, scale: isize) -> String {
+    let edges = find_edges(input);
+    let groups = group_edges(edges);
 
-    let border_sides = find_border_sides(grid);
-
-    let grouped_paths = grouping(border_sides);
-
-    // print out css path
-    let scale = 10;
-    let mut out_str = "".to_owned();
-    for path in grouped_paths {
-        out_str += "M";
-        for point in path {
-            out_str += &format!(" {} {}", point.0 * scale, point.1 * scale)
-        }
-        out_str += "\n";
-    }
-
-    println!("{out_str}")
+    groups
+        .into_iter()
+        .map(|path| {
+            "M ".to_owned()
+                + &path
+                    .into_iter()
+                    .map(|(x, y)| format!("{} {}", x * scale, y * scale))
+                    .collect::<Vec<String>>()
+                    .join(" ")
+        })
+        .collect::<Vec<String>>()
+        .join("\n")
 }
